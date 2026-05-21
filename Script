@@ -1,0 +1,220 @@
+// App.tsx
+import { useState } from "react";
+import { Download, Upload, MessageCircle, Instagram } from "lucide-react";
+
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  size: string;
+  price: string;
+  image: string;
+}
+
+export default function App() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    size: "",
+    price: "",
+    image: "",
+  });
+
+  const handleImage = (e: any) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setForm({
+        ...form,
+        image: reader.result as string,
+      });
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const addProduct = () => {
+    if (!form.name || !form.price || !form.image) return;
+
+    const newProduct: Product = {
+      id: Date.now(),
+      ...form,
+    };
+
+    setProducts([...products, newProduct]);
+
+    setForm({
+      name: "",
+      description: "",
+      size: "",
+      price: "",
+      image: "",
+    });
+  };
+
+  const downloadPDF = () => {
+    window.print();
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0B0717] text-white p-6">
+      {/* HEADER */}
+      <div className="bg-gradient-to-r from-purple-700 to-fuchsia-500 rounded-3xl p-8 shadow-2xl mb-8">
+        <h1 className="text-5xl font-black tracking-wide">
+          CATÁLOGO PROFESIONAL
+        </h1>
+
+        <p className="text-xl mt-2 opacity-90">
+          Colección Exclusiva 2026
+        </p>
+
+        <div className="mt-5 flex gap-3 flex-wrap">
+          <div className="bg-black/40 px-4 py-2 rounded-xl">
+            {products.length} PRODUCTOS DISPONIBLES
+          </div>
+
+          <div className="bg-yellow-400 text-black font-bold px-4 py-2 rounded-xl">
+            PDF AUTOMÁTICO
+          </div>
+        </div>
+      </div>
+
+      {/* FORM */}
+      <div className="bg-[#171127] rounded-3xl p-6 mb-10 shadow-xl border border-purple-500">
+        <h2 className="text-2xl font-bold mb-5">
+          Agregar Producto
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <input
+            placeholder="Nombre producto"
+            className="bg-[#24183B] p-4 rounded-xl outline-none"
+            value={form.name}
+            onChange={(e) =>
+              setForm({ ...form, name: e.target.value })
+            }
+          />
+
+          <input
+            placeholder="Tamaño"
+            className="bg-[#24183B] p-4 rounded-xl outline-none"
+            value={form.size}
+            onChange={(e) =>
+              setForm({ ...form, size: e.target.value })
+            }
+          />
+
+          <input
+            placeholder="Precio"
+            className="bg-[#24183B] p-4 rounded-xl outline-none"
+            value={form.price}
+            onChange={(e) =>
+              setForm({ ...form, price: e.target.value })
+            }
+          />
+
+          <input
+            type="file"
+            accept="image/*"
+            className="bg-[#24183B] p-4 rounded-xl"
+            onChange={handleImage}
+          />
+
+          <textarea
+            placeholder="Descripción"
+            className="bg-[#24183B] p-4 rounded-xl outline-none md:col-span-2"
+            rows={4}
+            value={form.description}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                description: e.target.value,
+              })
+            }
+          />
+        </div>
+
+        <button
+          onClick={addProduct}
+          className="mt-5 bg-purple-600 hover:bg-purple-700 transition px-6 py-3 rounded-2xl font-bold flex items-center gap-2"
+        >
+          <Upload size={20} />
+          Agregar Producto
+        </button>
+      </div>
+
+      {/* PRODUCTS */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {products.map((product, index) => (
+          <div
+            key={product.id}
+            className="bg-white text-black rounded-3xl overflow-hidden shadow-2xl"
+          >
+            <div className="relative">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-72 object-cover"
+              />
+
+              <div className="absolute top-4 left-4 bg-purple-600 text-white px-3 py-1 rounded-full font-bold">
+                #{index + 1}
+              </div>
+            </div>
+
+            <div className="p-5">
+              <h2 className="text-2xl font-black">
+                {product.name}
+              </h2>
+
+              <p className="text-gray-600 mt-2">
+                {product.description}
+              </p>
+
+              <div className="mt-4 flex items-center justify-between">
+                <div className="text-sm text-gray-500">
+                  📏 {product.size}
+                </div>
+
+                <div className="bg-yellow-400 text-black font-black px-4 py-2 rounded-xl text-xl">
+                  ${product.price}
+                </div>
+              </div>
+
+              <button className="mt-5 w-full bg-purple-600 hover:bg-purple-700 transition text-white py-3 rounded-2xl font-bold">
+                VER DETALLES
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* FOOTER */}
+      <div className="mt-10 bg-[#171127] rounded-3xl p-6 border border-purple-500">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-5">
+          <div className="flex items-center gap-3">
+            <MessageCircle />
+            <span>+56 9 1234 5678</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Instagram />
+            <span>@tu_negocio</span>
+          </div>
+
+          <button
+            onClick={downloadPDF}
+            className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-2xl font-bold flex items-center gap-2"
+          >
+            <Download size={20} />
+            Descargar PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
